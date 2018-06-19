@@ -8,7 +8,11 @@ class Oauth2Controller < ApplicationController
     auth_client = client_secrets.to_authorization
     auth_client.update!(
       scope: Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY,
-      redirect_uri: oauth2_callback_url
+      redirect_uri: oauth2_callback_url,
+      access_type: :offline,
+      additional_parameters: {
+        approval_prompt: :force
+      }
     )
 
     auth_uri = auth_client.authorization_uri.to_s
@@ -20,11 +24,12 @@ class Oauth2Controller < ApplicationController
     auth_client = client_secrets.to_authorization
     auth_client.update!(
       scope: Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY,
-      redirect_uri: oauth2_callback_url
+      redirect_uri: oauth2_callback_url,
+      access_type: :offline
     )
     auth_client.code = params[:code]
     auth_client.fetch_access_token!
 
-    render plain: "access_token: #{auth_client.access_token}"
+    render plain: "access_token: #{auth_client.access_token}\nrefresh_token: #{auth_client.refresh_token}"
   end
 end
